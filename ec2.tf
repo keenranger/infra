@@ -10,7 +10,8 @@ resource "aws_instance" "dev" {
     volume_size = 30
     volume_type = "gp2"
   }
-  key_name = aws_key_pair.dev.key_name
+  security_groups = [aws_security_group.dev.name]
+  key_name        = aws_key_pair.dev.key_name
 }
 
 resource "aws_key_pair" "dev" {
@@ -48,7 +49,14 @@ resource "aws_vpc_security_group_ingress_rule" "dev_https" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-# eip for ec2
+resource "aws_vpc_security_group_egress_rule" "dev_all" {
+  security_group_id = aws_security_group.dev.id
+  from_port         = 0
+  to_port           = 0
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
 resource "aws_eip" "dev" {
   instance   = aws_instance.dev.id
   depends_on = [aws_internet_gateway.default]
